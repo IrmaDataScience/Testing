@@ -18,11 +18,10 @@ public class Car {
 //    Utwórz metodę w klasie Car, która przeszuka wszystkie obiekty i wypisze na konsoli kraj - countryName, oraz oznaczenie kraju - countrySign (w formacie: Poland - P) 
 //                gdzie producentem jest BMW, z automatyczną skrzynią biegów oraz pojemnością bagażnika - trankCapacity większą niż 300 litrów.
 
-    public  static void filteringCar(List<Car> cars, String searchedProducentModel, boolean searchedIsAutomaticGear, int searchedTrankCapacity){
-       List<Car> searchedCars = new ArrayList<>();
+    public static void filteringCar(List<Car> cars, String searchedProducentModel, Boolean searchedIsAutomaticGear, int searchedTrankCapacity) {
         for (Car car : cars) {
             int count = 0;
-            if (car.getProducent().model().equals(searchedProducentModel) && car.isAutomaticGear) {
+            if (car.getProducent().model().equals(searchedProducentModel) && searchedIsAutomaticGear.equals(car.isAutomaticGear)) {
                 System.out.println(car.getProducent().model());
                 System.out.println(car.isAutomaticGear());
                 count = (int) car.dimensions.stream().filter(dimension -> dimension.trankCapacity() > searchedTrankCapacity).count();

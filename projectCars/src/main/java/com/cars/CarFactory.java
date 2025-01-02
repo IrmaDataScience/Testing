@@ -1,7 +1,6 @@
 package com.cars;
 
 import java.util.ArrayList;
-import java.util.List;
 
 class CarFactory {
 

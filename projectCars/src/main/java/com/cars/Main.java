@@ -7,8 +7,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,10 +16,10 @@ public class Main {
     public static void main(String[] args) {
 
         Random random = new Random();
-        ArrayList<Dimension> dimensions = new ArrayList<>( IntStream.range(0, 9).mapToObj(i -> new Dimension(random.nextInt(100) + i,
-                        random.nextInt(100) + i,
-                        random.nextInt(100,600) + 20))
-                .collect(Collectors.toList()));
+        ArrayList<Dimension> dimensions = IntStream.range(0, 9).mapToObj(i -> new Dimension(random.nextInt(100) + i,
+                random.nextInt(100) + i,
+                random.nextInt(100, 600) + 20))
+                .collect(Collectors.toCollection(ArrayList::new));
         dimensions.forEach(System.out::println);
 
         Faker faker = new Faker();
@@ -44,9 +42,9 @@ public class Main {
 
             producers = mapWithProducents.entrySet().stream()
                     .map(entry -> new Producent(entry.getKey(), entry.getValue()))
-                    .collect(Collectors.toList());
+                    .toList();
 
-            producers.stream().forEach(System.out::println);
+            producers.forEach(System.out::println);
             reader.close();
 
         } catch (IOException e) {
