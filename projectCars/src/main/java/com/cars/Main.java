@@ -1,7 +1,14 @@
 package com.cars;
 
 import com.github.javafaker.Faker;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -9,53 +16,82 @@ import java.util.stream.IntStream;
 public class Main {
 
     public static void main(String[] args) {
-        Map<String,Character> countryMap = new HashMap<>();
-        countryMap.put("Polska", 'P');
-        countryMap.put("Niemcy", 'D');
-        countryMap.put("Chiny", 'C');
-        countryMap.put("Holandia", 'N');
-        countryMap.put("Korea", 'K');
-
-        List<Country> countries = new ArrayList<>();
-
-        countryMap.forEach((name, code) -> countries.add(new Country(name, code)));
-        countries.forEach(System.out::println);
-
-
-        Producent toyota = new Producent("Toyota","Corolla");
-        Map<String,String> producersMap = Map.of(
-            "Audi","A4",
-            "Kia","Stinger",
-            "Cupra", "Formentor",
-            "Ford","Fiesta"
-        );
-
-        List<Producent> producents = new ArrayList<>();
-        producersMap.forEach((model,type)->producents.add(new Producent(model,type)));
-        producents.forEach(System.out::println);
 
         Random random = new Random();
-        List<Dimension> dimensions = IntStream.range(0, 9).mapToObj(i -> new Dimension(random.nextInt(100) + i,
+        ArrayList<Dimension> dimensions = new ArrayList<>( IntStream.range(0, 9).mapToObj(i -> new Dimension(random.nextInt(100) + i,
                         random.nextInt(100) + i,
-                        random.nextInt(1000) + 20))
-                .collect(Collectors.toList());
-
+                        random.nextInt(100,600) + 20))
+                .collect(Collectors.toList()));
         dimensions.forEach(System.out::println);
 
-        List<Market> markets = new ArrayList<>();
-        Set<String> marketNames = Set.of("business, cargo, transport, taxi, bus");
-        Set<Country>  marketCountries =  List.of(countries.get(random.nextInt(0, countries.size()),
-                countries.get(random.nextInt(0, countries.size()),
-                        countries.get(random.nextInt(0, countries.size()))))));
-        Set<Country>  marketCountries;
-        for(Market market:markets){
-            Set<Country>  marketCountries =  List.of(countries.get(random.nextInt(0, countries.size()),
-                    countries.get(random.nextInt(0, countries.size()),
-                            countries.get(random.nextInt(0, countries.size()))))));
-        }
-        List<Market>  marketList = IntStream.range(0, marketNames.size()).mapToObj(i -> new Market(marketNames(i), marketCountries(i))
-        ).collect(Collectors.toList());
+        Faker faker = new Faker();
+        List<Country> countries = new ArrayList<>();
+        IntStream.range(0, 5).forEach(i -> countries.add(
+                new Country(
+                        faker.country().name(),
+                        faker.country().countryCode3().toUpperCase().charAt(0)
+                )
+        ));
+        countries.forEach(System.out::println);
 
+        List<Producent> producers = new ArrayList<>();
+        Gson gson = new Gson();
+        try {
+            FileReader reader = new FileReader("C:\\Users\\Administrator\\IdeaProjects\\Testing\\projectCars\\src\\resources\\producers.json");
+            Type type = new TypeToken<Map<String, String>>(){}.getType();
+
+            Map<String, String> mapWithProducents = gson.fromJson(reader, type);
+
+            producers = mapWithProducents.entrySet().stream()
+                    .map(entry -> new Producent(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+
+            producers.stream().forEach(System.out::println);
+            reader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        List<Market> markets = new ArrayList<>();
+        Set<String> marketNames = Set.of("business", "cargo","transport", "taxi", "bus");
+
+        int countryNumber;
+        for (String market : marketNames) {
+            countryNumber = random.nextInt(3,countries.size());
+            Set<Country> marketCountries = new HashSet<>();
+            while(marketCountries.size()<countryNumber) {
+                marketCountries.add(countries.get(random.nextInt(countries.size())) );
+            }
+            markets.add(new Market(market,new ArrayList<>(marketCountries)));
+        }
+        markets.forEach(System.out::println);
+
+        List<Car> cars = new ArrayList<>();
+        Car toyotaCar = CarFactory.createCar( new Producent("BMW","jakies"),true,markets.get(0),
+                Segment.medium,dimensions);
+
+        cars.add(toyotaCar);
+        for (int i = 0; i < 14; i++) {
+            Car car = CarFactory.createCar(
+                    producers.get(random.nextInt(producers.size())),
+                    random.nextBoolean(),
+                    markets.get(random.nextInt(markets.size())),
+                    random.nextBoolean() ? Segment.medium : (random.nextBoolean() ? Segment.standard : Segment.premium),
+                    dimensions
+            );
+            cars.add(car);
+        }
+
+
+        cars.forEach(System.out::println);
+        String searchedModel = "BMW";
+        boolean searchedAutomaticGear = true;
+        int searchedTrankCapacity = 240;
+        Car.filteringCar(cars,searchedModel, searchedAutomaticGear,searchedTrankCapacity);
 
     }
+
+
+
 }
