@@ -1,0 +1,10 @@
+browser:
+  browser_name: chrome
+  headless: false
+  attach_screenshot: true
+  web_element_timeout: 60
+environment:
+  test_int:
+    env_name: test_int
+    app_url: https://www.selenium.dev
+    title: Selenium
